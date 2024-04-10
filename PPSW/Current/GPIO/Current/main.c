@@ -1,5 +1,4 @@
 #include <LPC21xx.H>
-#include <stdio.h>
 
 #define LED0_bm 1<<16
 #define LED1_bm 1<<17
@@ -14,51 +13,44 @@
 enum ButtonState {RELEASED, BUTTON_0, BUTTON_1, BUTTON_2, BUTTON_3};
 enum LedDirection {LEFT, RIGHT};
 
-void Delay(iLoopTimer)
-{
+void Delay(int iLoopTimer){
 	iLoopTimer = (iLoopTimer/7.8551)*100000;
 	for(  ; iLoopTimer > 0 ; iLoopTimer--){}
 }
 
-void LedInit()
-{
-	IO1DIR = IO1DIR | LED0_bm;
-	IO1DIR = IO1DIR | LED1_bm;
-	IO1DIR = IO1DIR | LED2_bm;
-	IO1DIR = IO1DIR | LED3_bm;
+void LedInit(){
+	IO1DIR = IO1DIR | LED0_bm | LED1_bm | LED2_bm | LED3_bm;
 	IO1SET = LED0_bm;
 }
 
-void LedOn(unsigned char ucLedIndeks)
-{
+void LedOn(unsigned char ucLedIndeks){
 	IO1CLR = LED0_bm | LED1_bm | LED2_bm | LED3_bm;
-	switch (ucLedIndeks)
-		{
-			case 0:
-				IO1SET = LED0_bm;
-				break;
-			case 1:
-				IO1SET = LED1_bm;
-				break;
-			case 2:
-				IO1SET = LED2_bm;
-				break;
-			case 3:
-				IO1SET = LED3_bm;
-				break;
-			default:
-				IO1CLR = LED0_bm | LED1_bm | LED2_bm | LED3_bm;
+	switch (ucLedIndeks){
+		case 0:
+			IO1SET = LED0_bm;
+			break;
+		case 1:
+			IO1SET = LED1_bm;
+			break;
+		case 2:
+			IO1SET = LED2_bm;
+			break;
+		case 3:
+			IO1SET = LED3_bm;
+			break;
+		default:
+			break;
 		}
 }
 
 enum ButtonState eKeyboardRead(){
 	if((IO0PIN & S0_bm) == 0){
-		return BUTTON_0;
+		return BUTTON_0; //sam iloczyn dla 1/0
 	}
-	else if((IO0PIN & S1_bm) == 0){
+	else if((IO0PIN & S1_bm) == 0){ //  puszczony 0x40  wcisniety 0x00
 		return BUTTON_1;
   }
-	else if((IO0PIN & S2_bm) == 0){
+	else if((IO0PIN & S2_bm) == 0){ // puszczony 0x20 wcisniety 0x00
     return BUTTON_2;
   }
 	else if((IO0PIN & S3_bm) == 0){
@@ -70,11 +62,13 @@ enum ButtonState eKeyboardRead(){
 }
 
 void KeyboardInit(){
-    IO0DIR = IO0DIR & (~(S0_bm | S1_bm | S2_bm | S3_bm));
+    IO0DIR = IO0DIR & (~(S0_bm | S1_bm | S2_bm | S3_bm)); //Tutaj jest negacja poniewaz kontrolujemy kierunek poszczegolnych pinow, chcemy odczytywac stan przyciskow, odczytywanie jest dla DIR = 0 a zapis dla DIR = 1, a define ustawia 1 na danym porcie
 }
 
 void LedStep(enum LedDirection Direction){
+	
 	static unsigned int uiCurrentLed;
+	
 	if(Direction == LEFT){
 		uiCurrentLed++;
 	}
@@ -92,10 +86,11 @@ void LedStepRight(void){
 	LedStep(RIGHT);
 }
 
-int main()
-{
+int main(){
+	
 	LedInit();
 	KeyboardInit();
+	
 	while(1)
 	{
 		Delay(250);
@@ -106,7 +101,7 @@ int main()
 			case BUTTON_2:
 				LedStepLeft();
 				break;
-			case RELEASED:
+			default:
 				break;
 		}	 
 		/*
