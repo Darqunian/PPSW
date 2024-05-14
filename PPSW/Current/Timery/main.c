@@ -4,11 +4,14 @@
 
 int main(){
 	
-	InitTimer0();
+	//InitTimer0();
 	LedInit();
+	InitTimer0Match0(250000);
 					
 	while(1){
-		WaitOnTimer0(25000);
+		//WaitOnTimer0(250000);
+		//LedStepLeft();
+		WaitOnTimer0Match0();
 		LedStepLeft();
 	}
 }
