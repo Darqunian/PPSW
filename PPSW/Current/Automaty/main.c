@@ -32,13 +32,13 @@ int main(){
 		enum LedState eLedState = WORKING;
 		*/
 		/* Zadanie 6 */
-		enum LedState {LEFT, RIGHT, WAITING};
+		enum LedState {LEFT, RIGHT, WAITING, STANDBY};
 		enum LedState eLedState = WAITING;
 		
 		
 	LedInit();
 	KeyboardInit();
-	
+		
 
 	while(1)
 	{
@@ -153,8 +153,8 @@ int main(){
 				if(eKeyboardRead()== BUTTON_1){
 					eLedState = WORKING;
 				}
-				break;
 				eLedState = WAITING;
+				break;
 			case WORKING:
 				if(eKeyboardRead()== BUTTON_0){
 					eLedState = WAITING;
@@ -162,10 +162,12 @@ int main(){
 				}
 				LedStepRight();
 				eLedState = WORKING;
+				break;
 			}
 			*/
 		
 		/* Zadanie 6 */
+		
 		
 		Delay(100);
 		switch(eLedState){
@@ -187,14 +189,22 @@ int main(){
 					eLedState = WAITING;
 					break;
 				}
+				else if(eKeyboardRead()== BUTTON_3){
+					eLedState = STANDBY;
+					break;
+				}
 				else{
 					LedStepLeft();
 					eLedState = LEFT;
 					break;
 				}
 			case RIGHT:
-				if(eKeyboardRead()== BUTTON_1){
+				if (eKeyboardRead()== BUTTON_1){
 					eLedState = WAITING;
+					break;
+				}
+				else if(eKeyboardRead()== BUTTON_3){
+					eLedState = STANDBY;
 					break;
 				}
 				else{
@@ -202,6 +212,13 @@ int main(){
 					eLedState = RIGHT;
 					break;
 				}
+			case  STANDBY:
+					if(eKeyboardRead()== BUTTON_0){
+						eLedState = LEFT;
+					}
+					else if (eKeyboardRead()== BUTTON_2){
+						eLedState = RIGHT;
+					}
 					
 			}
 	}
