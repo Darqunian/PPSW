@@ -87,6 +87,9 @@ enum Result eStringToKeyword (char pcStr[], enum KeywordCode *peKeywordCode) {
 	return ERROR;
 }
 
+//porownujemy lancuch wejsciowy z lancuchem znakowym znajdujacym sie na polu cString struktury keyword w tablicy KeywordList na pozycji KeywordCounter, 
+//jesli jest takie samo to przypisujemy zmiennej KeywordCode kod znajdujacy sie na polu eCode struktury keyword w tablicy KeywordList na pozycji KeywordCounter, 
+
 void DecodeTokens(void) {
 	
 	unsigned char ucTokenCounter;
@@ -115,7 +118,7 @@ void DecodeMsg(char *pcString) {
 }
 
 int main() {
-	char string[] = "reset now now";
+	char string[] = "reset 0x13 now";
 	
 	DecodeMsg(string);
 }
