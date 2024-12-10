@@ -1,0 +1,138 @@
+		AREA	MAIN_CODE, CODE, READONLY
+		GET		LPC213x.s
+		
+		ENTRY
+__main
+__use_two_region_memory
+		EXPORT			__main
+		EXPORT			__use_two_region_memory
+		
+		
+CURRENT_DIGIT rn r12	
+DIGIT_0 rn r8
+DIGIT_1 rn r9
+DIGIT_2 rn r10
+DIGIT_3 rn r11
+		
+		
+		
+		;port 0 init - wyswietlacz
+		ldr r4, =IODIR0
+		ldr r5, =(0XF<<16)
+		str r5, [r4]
+		
+		;port 1 init - segmenty wyswietlacza
+		ldr r4, =IODIR1
+		ldr r5, =(0XFF<<16)
+		str r5, [r4]
+		
+		
+		mov CURRENT_DIGIT, #0
+		
+		mov DIGIT_0, #0
+		mov DIGIT_1, #0
+		mov DIGIT_2, #0
+		mov DIGIT_3, #0
+
+main_loop
+		
+		;wygaszenie wyswietlacza
+		ldr r4, =IOCLR0
+		ldr r5, =(0XF<<16)
+		str r5, [r4]
+		
+		;wygaszenie led
+		ldr r4, =IOCLR1
+		ldr r5, =(0XFF<<16)
+		str r5, [r4]
+
+
+		;wlaczenie wyswietlacza
+		ldr r6, =IOSET0
+		ldr r7, =(0X8<<16)
+		lsr r7, CURRENT_DIGIT
+		str r7, [r6]
+		
+		
+		cmp CURRENT_DIGIT, #0
+		moveq R6, DIGIT_0
+		
+		cmp CURRENT_DIGIT, #1
+		moveq R6, DIGIT_1
+		
+		cmp CURRENT_DIGIT, #2
+		moveq R6, DIGIT_2
+		
+		cmp CURRENT_DIGIT, #3
+		moveq R6, DIGIT_3
+		
+MOV_CURRENT_DIGIT
+
+		;odczyt r6 z tablicy SEGMENTS_CODE
+		adr r7, SEGMENTS_CODE
+		add r7, r6
+		ldrb r6, [r7]
+		
+
+		;wlaczenie r6 (7-seg) na wyswietlaczu
+		ldr r4, =IOSET1
+		lsl r6, #16
+		str r6, [r4]
+		
+		
+		;inkrementacja licznika
+		cmp CURRENT_DIGIT, #3
+		bne END_COUNTER
+		
+		
+		;1
+		add DIGIT_0, #1
+		cmp DIGIT_0, #10
+		bne END_COUNTER
+		;10		
+		mov DIGIT_0, #0
+
+		add DIGIT_1, #1
+		cmp DIGIT_1, #10
+		bne END_COUNTER
+		;100
+		mov DIGIT_1, #0
+
+		add DIGIT_2, #1
+		cmp DIGIT_2, #10
+		bne END_COUNTER
+		;1000
+		mov DIGIT_2, #0
+
+		add DIGIT_3, #1
+		cmp DIGIT_3, #10
+		bne END_COUNTER
+		;10000		
+		mov DIGIT_3, #0
+		
+END_COUNTER
+		
+		;modulo 4 i  inkrementacja
+		add CURRENT_DIGIT, #1
+		and r12, #3
+		
+		;delay
+		ldr r0, =8
+		bl delay_in_ms
+			
+		b main_loop
+
+delay_in_ms
+		ldr r1, =15000
+		mul r1, r1
+L1		
+		subs r1, #1
+		bne L1
+		
+		bx lr
+		
+		
+SEGMENTS_CODE DCB 0x3f,0x06,0x5B,0x4F,0x66,0x6d,0x7D,0x07,0x7f,0x6f	
+
+		
+		END
